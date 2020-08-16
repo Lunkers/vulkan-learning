@@ -6,6 +6,7 @@
 #include <cstdlib>
 #include <optional>
 #include <vector>
+#include <set>
 #include<cstring>
 
 const uint32_t WIDTH = 800;
@@ -50,6 +51,7 @@ private:
     VkPhysicalDevice physicalDevice = VK_NULL_HANDLE; //reference to our _physical_ device
     VkDevice device; //logical device
     VkQueue graphicsQueue; //an actual command queue
+    VkQueue presentQueue;
     
     void initWindow() {
         glfwInit();
@@ -158,7 +160,6 @@ private:
         vkDestroyDevice(device, nullptr);
         vkDestroySurfaceKHR(instance, surface, nullptr);
         vkDestroyInstance(instance, nullptr);
-        vkDestroyInstance(instance,nullptr);
         glfwDestroyWindow(window);
 
         glfwTerminate();
@@ -180,6 +181,11 @@ private:
         for (const auto& queueFamily : queueFamilies) {
             if (queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
                 indices.graphicsFamily = i;
+            }
+            VkBool32 presentSupport = false;
+            vkGetPhysicalDeviceSurfaceSupportKHR(device, i, surface, &presentSupport);
+            if (presentSupport) {
+                indices.presentFamily = i;
             }
 
             i++;
